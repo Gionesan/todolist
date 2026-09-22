@@ -9,7 +9,8 @@ const app = Fastify({ logger: true });
 // O navegador roda em uma porta diferente (5173) e por isso precisamos
 // liberar o acesso de outra origem aqui no servidor.
 await app.register(cors, {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:5173'
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE', 'OPTIONS']
 });
 
 // Ping rápido para saber se a API está no ar.

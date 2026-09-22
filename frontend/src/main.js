@@ -35,6 +35,14 @@ function esconderErro() {
   erro.hidden = true;
 }
 
+function validarEntrada(titulo, prazo) {
+  if (!titulo.trim()) return 'Digite o nome da tarefa primeiro.';
+  if (titulo.trim().length < 3) return 'A tarefa precisa ter pelo menos 3 caracteres.';
+  if (titulo.trim().length > 255) return 'A tarefa não pode passar de 255 caracteres.';
+  if (prazo && prazo < hojeLocal()) return 'A data limite não pode ser anterior a hoje.';
+  return null;
+}
+
 function atualizarTotais(totais) {
   document.getElementById('cartao-total').querySelector('strong').textContent = totais.total;
   document.getElementById('cartao-concluidas').querySelector('strong').textContent = totais.completed;
@@ -88,7 +96,7 @@ function montarEditor(tarefa) {
   espaco.dataset.id = tarefa.id;
   espaco.innerHTML = `
     <input type="text" class="editar-titulo" maxlength="255" value="${escapeHtml(tarefa.title)}" />
-    <input type="date" class="editar-prazo" value="${tarefa.due_date || ''}" />
+    <input type="date" class="editar-prazo" min="${hojeLocal()}" value="${tarefa.due_date || ''}" />
     <button type="button" class="acao" data-acao="salvar">Salvar</button>
     <button type="button" class="acao" data-acao="cancelar">Cancelar</button>
   `;
@@ -130,6 +138,11 @@ async function carregarTarefas() {
 }
 
 async function criarTarefa(titulo, prazo) {
+  const erro = validarEntrada(titulo, prazo);
+  if (erro) {
+    mostrarErro(erro);
+    return;
+  }
   esconderErro();
   try {
     const resposta = await fetch(API_URL, {
@@ -165,8 +178,9 @@ async function alternarConclusao(tarefa) {
 }
 
 async function salvarEdicao(tarefa, titulo, prazo) {
-  if (!titulo.trim()) {
-    mostrarErro('O nome da tarefa não pode ficar vazio.');
+  const erro = validarEntrada(titulo, prazo);
+  if (erro) {
+    mostrarErro(erro);
     return;
   }
   esconderErro();
@@ -176,7 +190,10 @@ async function salvarEdicao(tarefa, titulo, prazo) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title: titulo, dueDate: prazo || null })
     });
-    if (!resposta.ok) throw new Error('Não foi possível salvar a edição.');
+    if (!resposta.ok) {
+      const dados = await resposta.json().catch(() => ({}));
+      throw new Error(dados.message || 'Não foi possível salvar a edição.');
+    }
     await carregarTarefas();
   } catch (err) {
     mostrarErro(err.message);
@@ -206,12 +223,14 @@ function abrirEditor(tarefa) {
 formulario.addEventListener('submit', (evento) => {
   evento.preventDefault();
   const titulo = campoTitulo.value.trim();
-  if (!titulo) {
-    mostrarErro('Digite o nome da tarefa primeiro.');
+  const prazo = campoPrazo.value;
+  const erro = validarEntrada(titulo, prazo);
+  if (erro) {
+    mostrarErro(erro);
     campoTitulo.focus();
     return;
   }
-  criarTarefa(titulo, campoPrazo.value);
+  criarTarefa(titulo, prazo);
 });
 
 lista.addEventListener('click', (evento) => {
@@ -280,5 +299,7 @@ campoBusca.addEventListener('input', () => {
     carregarTarefas();
   }, 300);
 });
+
+campoPrazo.min = hojeLocal();
 
 carregarTarefas();
