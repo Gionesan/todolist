@@ -1,6 +1,6 @@
 # Todolist — React + Fastify + MySQL
 
-Sistema web completo de lista de tarefas (*todolist*) full stack, com interface em **React (Vite)**, API em **Node.js (Fastify)** e banco de dados **MySQL**. Projeto avaliativo da disciplina de Programação Web.
+Projeto de lista de tarefas desenvolvido para a disciplina de PW3 (Programação Web). A interface fica no React (Vite), a API no Node.js com Fastify e os dados são guardados no MySQL.
 
 ## Funcionalidades
 
@@ -18,7 +18,7 @@ Sistema web completo de lista de tarefas (*todolist*) full stack, com interface 
 
 - O título é obrigatório e deve ter, no mínimo, **3 caracteres** (máximo 255);
 - A data limite é **opcional**, mas não pode ser **anterior a hoje**;
-- As validações são aplicadas no **backend** (fonte da verdade) e no **frontend** (para melhor experiência);
+- As validações valem tanto no frontend quanto no backend;
 - Tarefas sem prazo aparecem por último na listagem.
 
 ## Tecnologias utilizadas
@@ -87,7 +87,7 @@ A interface sobe em `http://localhost:5173`.
 | GET    | `/health`            | Verifica se a API está no ar           |
 | GET    | `/api/tasks`         | Lista tarefas (`?search=`, `?status=`) |
 | POST   | `/api/tasks`         | Cria uma tarefa (`{ title, dueDate? }`)|
-| PATCH  | `/api/tasks/:id`     | Atualiza parcialmente (`{ completed? , title?, dueDate? }`) |
+| PATCH  | `/api/tasks/:id`     | Atualiza parcialmente (`{ completed?, title?, dueDate? }`) |
 | DELETE | `/api/tasks/:id`     | Exclui uma tarefa                      |
 
 ### Exemplos
@@ -100,7 +100,7 @@ Content-Type: application/json
 
 {
   "title": "Estudar Fastify",
-  "dueDate": "2026-09-20"
+  "dueDate": "2026-12-20"
 }
 ```
 

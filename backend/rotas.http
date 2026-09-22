@@ -10,7 +10,7 @@ Content-Type: application/json
 
 {
   "title": "Estudar Fastify",
-  "dueDate": "2026-09-20"
+  "dueDate": "2026-12-20"
 }
 
 ### Marcar como concluída (troque 1 pelo id retornado)
