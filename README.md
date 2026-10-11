@@ -4,15 +4,16 @@ Projeto de lista de tarefas desenvolvido para a disciplina de PW3 (Programação
 
 ## Funcionalidades
 
-- Criar tarefa com título e data limite (prazo opcional);
-- Listar tarefas pendentes e concluídas;
-- Buscar tarefas pelo nome em tempo real;
-- Filtrar por todas / pendentes / concluídas;
-- Marcar tarefa como concluída ou reabri-la;
-- Editar o título e o prazo de uma tarefa;
-- Excluir tarefas;
-- Painel com totais, pendentes e concluídas;
-- Destaque visual para prazos vencidos (atrasadas).
+- Listagem de tarefas com contadores de total, pendentes e concluídas;
+- Busca de tarefas em tempo real (com debounce);
+- Criação de tarefas via modal ("Create Task"), com data limite opcional;
+- Edição de tarefas via modal ("Edit Task") — botão de lápis em cada item;
+- Marcar/desmarcar tarefa como concluída (checkbox com gradiente);
+- Exclusão de tarefas (botões de editar/excluir aparecem ao passar o mouse);
+- **Data limite e atraso**: tarefas com data de vencimento no passado e ainda pendentes ficam com o título em vermelho e exibem o selo "Em atraso";
+- Ordenação automática: tarefas com data mais próxima aparecem primeiro (sem prazo por último);
+- Estado vazio idêntico ao mockup ("You have no pending tasks.");
+- Botão flutuante "+" no canto inferior direito.
 
 ## Regras de negócio
 
@@ -26,6 +27,7 @@ Projeto de lista de tarefas desenvolvido para a disciplina de PW3 (Programação
 | Camada    | Tecnologia        |
 |-----------|-------------------|
 | Frontend  | React, Vite       |
+| Testes    | Vitest, Testing Library, jsdom |
 | Backend   | Node.js, Fastify  |
 | Banco     | MySQL             |
 | Cliente SQL | mysql2 (pool de conexões) |
@@ -79,6 +81,21 @@ npm run dev
 ```
 
 A interface sobe em `http://localhost:5173`.
+
+Por padrão o frontend conversa com `http://localhost:3333`. Para apontar para outra URL da API, crie um arquivo `frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:3333
+```
+
+### 4. Testes de funcionalidade (frontend)
+
+```bash
+cd frontend
+npm test
+```
+
+Os testes (Vitest + Testing Library) cobrem contadores, estado vazio, selo "Em atraso", ordenação, criação/edição via modal, marcar como concluída, exclusão e busca com debounce.
 
 ## Endpoints da API
 
@@ -136,8 +153,24 @@ todolist/
 │           └── tasks.js
 ├── frontend/
 │   ├── index.html
+│   ├── vite.config.js
+│   ├── vitest.setup.js
 │   └── src/
-│       ├── main.js
-│       └── style.css
+│       ├── main.jsx
+│       ├── App.jsx
+│       ├── index.css
+│       ├── api/
+│       │   └── tasks.js
+│       ├── utils/
+│       │   └── tasks.js
+│       ├── components/
+│       │   ├── Header.jsx
+│       │   ├── SearchBar.jsx
+│       │   ├── TaskList.jsx
+│       │   ├── TaskItem.jsx
+│       │   ├── TaskModal.jsx
+│       │   └── FloatingButton.jsx
+│       └── __tests__/
+│           └── App.test.jsx
 └── README.md
 ```
