@@ -45,16 +45,18 @@ afterEach(() => {
 })
 
 describe('Todolist frontend', () => {
-  it('mostra os contadores de total, pendentes e concluídas', async () => {
+  it('mostra os contadores de total e concluídas e o anel de progresso', async () => {
     mockApi({ tasks, total: 3, completed: 1 })
     render(<App />)
 
     await screen.findByText('Pagar aluguel')
 
-    const counters = screen.getAllByRole('definition')
-    expect(counters[0]).toHaveTextContent('3')
-    expect(counters[1]).toHaveTextContent('2')
-    expect(counters[2]).toHaveTextContent('1')
+    expect(screen.getByText('3').closest('span')).toHaveTextContent('total')
+    expect(screen.getByText('1').closest('span')).toHaveTextContent('completed')
+
+    const ring = screen.getByRole('progressbar')
+    expect(ring).toHaveAttribute('aria-valuenow', '33')
+    expect(ring).toHaveTextContent('33%')
   })
 
   it('mostra o estado vazio quando não há tarefas', async () => {
@@ -69,9 +71,13 @@ describe('Todolist frontend', () => {
     render(<App />)
 
     const overdueTitle = await screen.findByText('Enviar relatório')
-    expect(overdueTitle).toHaveClass('overdue')
-    expect(screen.getByText('Em atraso')).toBeInTheDocument()
-    expect(within(overdueTitle.closest('li')).getByText('Em atraso')).toBeInTheDocument()
+    const item = overdueTitle.closest('li')
+    expect(item).toHaveClass('task--overdue')
+    expect(within(item).getByText('Em atraso')).toBeInTheDocument()
+
+    expect(screen.getByText('Pagar aluguel').closest('li')).not.toHaveClass('task--overdue')
+    expect(screen.queryByText('Em atraso')).toHaveTextContent('Em atraso')
+    expect(screen.getAllByText('Em atraso')).toHaveLength(1)
   })
 
   it('ordena as tarefas pela data mais próxima, sem prazo por último', async () => {
@@ -82,7 +88,7 @@ describe('Todolist frontend', () => {
 
     const titulos = screen
       .getAllByRole('listitem')
-      .map((item) => within(item).getByText(/Pagar aluguel|Enviar relatório|Regar plantas/).textContent)
+      .map((item) => item.querySelector('.task__title').textContent)
 
     expect(titulos).toEqual(['Enviar relatório', 'Pagar aluguel', 'Regar plantas'])
   })
@@ -93,13 +99,14 @@ describe('Todolist frontend', () => {
 
     await screen.findByText('You have no pending tasks.')
 
-    fireEvent.click(screen.getByRole('button', { name: 'Criar tarefa' }))
-    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: 'Create task' }))
+    const dialog = screen.getByRole('dialog')
+    expect(dialog).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Create Task' })).toBeInTheDocument()
 
-    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Nova tarefa' } })
-    fireEvent.change(screen.getByLabelText(/Due date/), { target: { value: '2030-06-01' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Create' }))
+    fireEvent.change(within(dialog).getByLabelText('Title'), { target: { value: 'Nova tarefa' } })
+    fireEvent.change(within(dialog).getByLabelText(/Due date/), { target: { value: '2030-06-01' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Create task' }))
 
     await waitFor(() => {
       const post = calls.find((call) => call.method === 'POST')
@@ -113,10 +120,11 @@ describe('Todolist frontend', () => {
     render(<App />)
 
     await screen.findByText('You have no pending tasks.')
-    fireEvent.click(screen.getByRole('button', { name: 'Criar tarefa' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Create task' }))
+    const dialog = screen.getByRole('dialog')
 
-    fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'ab' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Create' }))
+    fireEvent.change(within(dialog).getByLabelText('Title'), { target: { value: 'ab' } })
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Create task' }))
 
     expect(await screen.findByText(/pelo menos 3 caracteres/)).toBeInTheDocument()
     expect(calls.find((call) => call.method === 'POST')).toBeUndefined()
@@ -129,14 +137,14 @@ describe('Todolist frontend', () => {
     const titulo = await screen.findByText('Pagar aluguel')
     const item = titulo.closest('li')
 
-    fireEvent.click(within(item).getByRole('button', { name: /Editar tarefa/ }))
+    fireEvent.click(within(item).getByRole('button', { name: 'Edit task' }))
     expect(screen.getByRole('heading', { name: 'Edit Task' })).toBeInTheDocument()
 
     const titleField = screen.getByLabelText('Title')
     expect(titleField).toHaveValue('Pagar aluguel')
 
     fireEvent.change(titleField, { target: { value: 'Pagar aluguel e luz' } })
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Save changes' }))
 
     await waitFor(() => {
       const patch = calls.find((call) => call.method === 'PATCH')
@@ -169,12 +177,12 @@ describe('Todolist frontend', () => {
     const titulo = await screen.findByText('Regar plantas')
     const item = titulo.closest('li')
 
-    fireEvent.click(within(item).getByRole('button', { name: /Excluir tarefa/ }))
+    fireEvent.click(within(item).getByRole('button', { name: 'Delete task' }))
 
     await waitFor(() => {
       const del = calls.find((call) => call.method === 'DELETE')
       expect(del).toBeTruthy()
-      expect(del.url).toBe(`${API}/2`)
+      expect(del.url).toBe('http://localhost:3333/api/tasks/2')
     })
   })
 
@@ -191,7 +199,7 @@ describe('Todolist frontend', () => {
         const search = calls.find((call) => call.url.includes('search=relatorio'))
         expect(search).toBeTruthy()
       },
-      { timeout: 1500 }
+      { timeout: 1000 }
     )
   })
 })

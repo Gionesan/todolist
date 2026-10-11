@@ -164,12 +164,13 @@ todolist/
 │       ├── utils/
 │       │   └── tasks.js
 │       ├── components/
+│       │   ├── FloatingButton.jsx
 │       │   ├── Header.jsx
+│       │   ├── Icons.jsx
 │       │   ├── SearchBar.jsx
-│       │   ├── TaskList.jsx
 │       │   ├── TaskItem.jsx
-│       │   ├── TaskModal.jsx
-│       │   └── FloatingButton.jsx
+│       │   ├── TaskList.jsx
+│       │   └── TaskModal.jsx
 │       └── __tests__/
 │           └── App.test.jsx
 └── README.md

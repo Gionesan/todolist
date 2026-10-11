@@ -1,20 +1,20 @@
+import Icon from './Icons'
 import TaskItem from './TaskItem'
 
-export default function TaskList({ tasks, loading, onToggle, onEdit, onDelete }) {
-  if (loading) {
+export default function TaskList({ tasks, onToggle, onEdit, onDelete }) {
+  if (tasks.length === 0) {
     return (
-      <p className="state" role="status">
-        Carregando tarefas...
-      </p>
+      <div className="empty" id="empty-state">
+        <span className="empty__mark">
+          <Icon name="check" />
+        </span>
+        <p>You have no pending tasks.</p>
+      </div>
     )
   }
 
-  if (tasks.length === 0) {
-    return <p className="state empty">You have no pending tasks.</p>
-  }
-
   return (
-    <ul className="task-list">
+    <ul className="tasks" id="task-list">
       {tasks.map((task) => (
         <TaskItem
           key={task.id}

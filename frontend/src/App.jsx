@@ -77,26 +77,25 @@ export default function App() {
   }
 
   return (
-    <div className="app">
-      <div className="container">
-        <Header total={counters.total} completed={counters.completed} />
+    <main className="app">
+      <Header total={counters.total} completed={counters.completed} />
 
-        <SearchBar value={search} onChange={setSearch} />
+      <SearchBar value={search} onChange={setSearch} />
 
-        {error && (
-          <p className="alert" role="alert">
-            {error}
-          </p>
-        )}
+      {error && (
+        <p className="alert" role="alert">
+          {error}
+        </p>
+      )}
 
+      {!loading && (
         <TaskList
           tasks={tasks}
-          loading={loading}
           onToggle={handleToggle}
           onEdit={(task) => setModal({ mode: 'edit', task })}
           onDelete={handleDelete}
         />
-      </div>
+      )}
 
       <FloatingButton onClick={() => setModal({ mode: 'create' })} />
 
@@ -108,6 +107,6 @@ export default function App() {
           onSubmit={handleSubmit}
         />
       )}
-    </div>
+    </main>
   )
 }

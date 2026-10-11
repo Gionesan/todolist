@@ -1,27 +1,34 @@
+import { formatToday } from '../utils/tasks'
+
 export default function Header({ total, completed }) {
-  const pending = total - completed
+  const pct = total > 0 ? Math.round((completed / total) * 100) : 0
 
   return (
-    <header className="header">
-      <div className="header-text">
-        <h1>My Tasks</h1>
-        <p className="subtitle">Organize o seu dia de um jeito simples.</p>
+    <header className="head">
+      <div>
+        <p className="date">{formatToday()}</p>
+        <h1>My tasks</h1>
+        <p className="counts">
+          <span>
+            <strong>{total}</strong> total
+          </span>
+          <span>
+            <strong>{completed}</strong> completed
+          </span>
+        </p>
       </div>
 
-      <dl className="counters">
-        <div className="counter">
-          <dd>{total}</dd>
-          <dt>Total</dt>
-        </div>
-        <div className="counter">
-          <dd>{pending}</dd>
-          <dt>Pendentes</dt>
-        </div>
-        <div className="counter">
-          <dd>{completed}</dd>
-          <dt>Concluídas</dt>
-        </div>
-      </dl>
+      <div
+        className="ring"
+        role="progressbar"
+        aria-label="Completed tasks"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        aria-valuenow={pct}
+        style={{ '--pct': pct }}
+      >
+        <span>{pct}%</span>
+      </div>
     </header>
   )
 }

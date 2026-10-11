@@ -48,57 +48,64 @@ export default function TaskModal({ mode, task, onClose, onSubmit }) {
     }
   }
 
+  const titleId = isEdit ? 'edit-task-title' : 'create-task-title'
+
   return (
-    <div
-      className="modal-backdrop"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose()
-      }}
-    >
-      <div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <h2 id="modal-title">{isEdit ? 'Edit Task' : 'Create Task'}</h2>
+    <div className="modal is-open" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <a
+        className="modal__backdrop"
+        href="#"
+        aria-label="Close"
+        onClick={(event) => {
+          event.preventDefault()
+          onClose()
+        }}
+      />
 
-        <form onSubmit={handleSubmit}>
-          <label className="field">
-            <span>Title</span>
-            <input
-              ref={inputRef}
-              type="text"
-              maxLength={255}
-              value={title}
-              placeholder="O que você precisa fazer?"
-              onChange={(event) => setTitle(event.target.value)}
-            />
-          </label>
+      <form className="modal__panel" onSubmit={handleSubmit}>
+        <h2 id={titleId}>{isEdit ? 'Edit Task' : 'Create Task'}</h2>
 
-          <label className="field">
-            <span>
-              Due date <small>(opcional)</small>
-            </span>
-            <input
-              type="date"
-              min={todayISO()}
-              value={dueDate}
-              onChange={(event) => setDueDate(event.target.value)}
-            />
-          </label>
+        <label className="field">
+          <span>Title</span>
+          <input
+            ref={inputRef}
+            type="text"
+            name="title"
+            maxLength={255}
+            placeholder="What needs to be done?"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+          />
+        </label>
 
-          {error && (
-            <p className="error" role="alert">
-              {error}
-            </p>
-          )}
+        <label className="field">
+          <span>
+            Due date <small>Optional</small>
+          </span>
+          <input
+            type="date"
+            name="due"
+            min={todayISO()}
+            value={dueDate}
+            onChange={(event) => setDueDate(event.target.value)}
+          />
+        </label>
 
-          <div className="modal-actions">
-            <button type="button" className="btn ghost" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="submit" className="btn primary" disabled={saving}>
-              {saving ? 'Saving...' : isEdit ? 'Save' : 'Create'}
-            </button>
-          </div>
-        </form>
-      </div>
+        {error && (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
+        )}
+
+        <div className="modal__foot">
+          <button type="button" className="btn btn--ghost" onClick={onClose}>
+            Cancel
+          </button>
+          <button className="btn btn--primary" type="submit" disabled={saving}>
+            {saving ? 'Saving...' : isEdit ? 'Save changes' : 'Create task'}
+          </button>
+        </div>
+      </form>
     </div>
   )
 }

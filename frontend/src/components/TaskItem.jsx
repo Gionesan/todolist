@@ -1,62 +1,61 @@
-import { formatDate, isCompleted, isOverdue } from '../utils/tasks'
+import Icon from './Icons'
+import { dayMonth, isCompleted, isOverdue } from '../utils/tasks'
 
 export default function TaskItem({ task, onToggle, onEdit, onDelete }) {
   const done = isCompleted(task)
   const overdue = isOverdue(task)
+  const when = task.due_date ? dayMonth(task.due_date) : null
+
+  const classes = ['task']
+  if (done) classes.push('task--done')
+  if (overdue) classes.push('task--overdue')
 
   return (
-    <li className={`task${done ? ' done' : ''}`}>
-      <label className="checkbox">
+    <li className={classes.join(' ')}>
+      {when ? (
+        <time className="when" dateTime={task.due_date}>
+          <b>{when.day}</b>
+          {when.month}
+        </time>
+      ) : (
+        <span className="when when--none">No date</span>
+      )}
+
+      <label className="check">
         <input
           type="checkbox"
           checked={done}
           onChange={() => onToggle(task)}
-          aria-label={`Marcar "${task.title}" como concluída`}
+          aria-label={done ? 'Mark as pending' : 'Mark as completed'}
         />
-        <span className="checkbox-mark" aria-hidden="true" />
+        <span className="check__box">
+          <Icon name="check" />
+        </span>
       </label>
 
-      <div className="task-main">
-        <p className={`task-title${overdue ? ' overdue' : ''}`}>{task.title}</p>
-
-        <div className="task-meta">
-          {task.due_date ? (
-            <span className="task-due">Vence em {formatDate(task.due_date)}</span>
-          ) : (
-            <span className="task-due">Sem prazo</span>
-          )}
-
-          {overdue && <span className="badge-overdue">Em atraso</span>}
-        </div>
+      <div className="task__body">
+        <p className="task__title">{task.title}</p>
+        {overdue && <span className="badge">Em atraso</span>}
       </div>
 
-      <div className="task-actions">
+      <div className="task__actions">
         <button
           type="button"
           className="icon-btn"
-          aria-label={`Editar tarefa "${task.title}"`}
-          title="Editar"
+          aria-label="Edit task"
+          title="Edit"
           onClick={() => onEdit(task)}
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 20h4l10-10-4-4L4 16v4z" />
-            <path d="M13.5 6.5l4 4" />
-          </svg>
+          <Icon name="edit" />
         </button>
-
         <button
           type="button"
-          className="icon-btn danger"
-          aria-label={`Excluir tarefa "${task.title}"`}
-          title="Excluir"
+          className="icon-btn icon-btn--danger"
+          aria-label="Delete task"
+          title="Delete"
           onClick={() => onDelete(task)}
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 7h16" />
-            <path d="M9 7V5h6v2" />
-            <path d="M6 7l1 13h10l1-13" />
-            <path d="M10 11v6M14 11v6" />
-          </svg>
+          <Icon name="trash" />
         </button>
       </div>
     </li>
