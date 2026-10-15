@@ -2,3 +2,9 @@ node_modules/
 dist/
 .env
 *.log
+
+# Arquivos de referencia/andaime (nao fazem parte do app React)
+/front.txt
+/link.txt
+/index.html
+/styles.css
